@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="@Url.Content("~/Content/images/Icon.ico")" type="image/x-ico">
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/jquery")
+    <title>Редактор книг</title>
+</head>
+<body>
+    <div class="main">
+        <div class="header">
+            <h1>BOOKS EDITOR</h1>
+        </div>
+        <div class="content">
+            @RenderBody() 
+            @Scripts.Render("~/bundles/bootstrap")           
+            @Scripts.Render("~/bundles/jqueryajax")
+            @Scripts.Render("~/bundles/ownScripts")
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,167 @@
+﻿@model BooksEditor.Models.ViewModels.BookViewModel
+
+@if (TempData["message"] != null)
+{
+    <div class="action-result-message">@TempData["message"]</div>
+}
+@if (Model != null)
+{
+    Model.SortBooks();
+    <div class="list-of-books">
+        @foreach (var book in Model.Books)
+        {
+            <div class="list-of-books__book js-book" id="book_@book.BookId">
+                <div class="list-of-books__book-cover">
+                    <div class="book-cover__img-container js-edit-book">
+                        @if (book.Cover == null)
+                        {
+                            <img class="book-cover__img" src="@Url.Content("~/Content/images/default/noCover.png")" alt="@book.Title">
+                        }
+                        else
+                        {
+                            <img class="book-cover__img" src="@Url.Content("~/Content/images/Covers/" + book.Cover)" alt="@book.Title">
+                        }
+                    </div>
+                    @Ajax.ActionLink(@book.Title, null, null, null,
+                          new AjaxOptions
+                          {
+                              UpdateTargetId = "bookInfo",
+                              OnSuccess = "ShowEditBookPanel",
+                              Url = Url.Action("EditBook", "Book", new { book_id = book.BookId }),
+                          },
+                          new { @class = "js-book-title" })
+                </div>
+                <div class="list-of-books__book-author">
+                    <span>@book.Author.FirstName @book.Author.SecondName</span>
+                </div>
+                <div class="list-of-books__book-publishing">
+                    <span>@(book.PublishHouse + (book.PublishHouse != null && book.PublishYear != null ? ", " : "") + book.PublishYear)</span>
+                </div>
+                @using (Ajax.BeginForm("DeleteBook",
+                               new { book_id = book.BookId },
+                               new AjaxOptions
+                               {
+                                   UpdateTargetId = "booksList",
+                                   HttpMethod = "POST",
+                               },
+                               new { @class = "list-of-books__delete-book js-delete-book", id = "js-delete-book-form_" + @book.BookId }))
+                {
+                    <input type="submit" class="delete-book-button" data-book-title="@book.Title" data-book-id="@book.BookId" value="Удалить">
+                }
+            </div>
+        }
+    </div>
+        <!-- pager -->
+    <div class="paginate">
+        <div class="paginate__paging">
+            @if (Model.Pager.EndPage > 1)
+            {
+                if (Model.Pager.CurrentPage > 1)
+                {
+                    @Ajax.ActionLink("<", "BooksList", "Book",
+                                      new { page = Model.Pager.CurrentPage - 1 },
+                                      new AjaxOptions
+                                      {
+                                          UpdateTargetId = "booksList"
+                                      },
+                                      new { @class = "paging__prev-page paging__pages", @id = "page_prev" });
+                }
+                if (Model.Pager.StartPage > 1)
+                {
+                    @Ajax.ActionLink("1", "BooksList", "Book",
+                                       new { page = 1 },
+                                       new AjaxOptions
+                                       {
+                                           UpdateTargetId = "booksList"
+                                       },
+                                       new { @class = "paging__pages", @id = "page_1" });
+                    if (Model.Pager.StartPage > 2)
+                    {
+                        @Ajax.ActionLink("...", "BooksList", "Book",
+                                       new { page = (Model.Pager.StartPage - 2) },
+                                       new AjaxOptions
+                                       {
+                                           UpdateTargetId = "booksList"
+                                       },
+                                       new { @class = "paging__pages", @id = "page_" + (Model.Pager.StartPage - 2) });
+                    }
+                }
+                for (var page = Model.Pager.StartPage; page <= Model.Pager.EndPage; page++)
+                {
+                    if (page == Model.Pager.CurrentPage)
+                    {
+                        ViewBag.CurrentPage = page;
+                            <span class="paging__pages paging__is_selected">@Model.Pager.CurrentPage</span>
+                    }
+                    else
+                    {
+                        @Ajax.ActionLink(page.ToString(), "BooksList", "Book",
+                                      new { page = page },
+                                      new AjaxOptions
+                                      {
+                                          UpdateTargetId = "booksList"
+                                      },
+                                      new { @class = "paging__pages", @id = "page_" + page });
+                    }
+                }
+                if (Model.Pager.TotalPages > Model.Pager.EndPage)
+                {
+                    if ((Model.Pager.TotalPages - Model.Pager.EndPage) > 1)
+                    {
+                        @Ajax.ActionLink("...", "BooksList", "Book",
+                                      new { page = (Model.Pager.EndPage + 2) },
+                                      new AjaxOptions
+                                      {
+                                          UpdateTargetId = "booksList"
+                                      },
+                                      new { @class = "paging__pages", @id = "page_" + (Model.Pager.EndPage + 2) });
+                    }
+                    @Ajax.ActionLink(Model.Pager.TotalPages.ToString(), "BooksList", "Book",
+                                      new { page = Model.Pager.TotalPages },
+                                      new AjaxOptions
+                                      {
+                                          UpdateTargetId = "booksList"
+                                      },
+                                      new { @class = "paging__pages", @id = "page_" + Model.Pager.TotalPages });
+                }
+                if (Model.Pager.CurrentPage < Model.Pager.TotalPages)
+                {
+                    @Ajax.ActionLink(">", "BooksList", "Book",
+                                  new { page = Model.Pager.CurrentPage + 1 },
+                                  new AjaxOptions
+                                  {
+                                      UpdateTargetId = "booksList"
+                                  },
+                                  new { @class = "paging__next-page paging__pages", @id = "page_next" });
+                }
+            }
+        </div>
+        <div class="books-on-page">
+            <span class="books-on-page__title">
+                Книг на странице
+            </span>
+            <div class="books-on-page__items">
+                @{
+                    int[] pageSizes = new int[] { 12, 24, 36 };
+                    for (int i = 0; i < pageSizes.Length; i++)
+                    {
+                        if (Model.Pager.PageSize == pageSizes[i])
+                        {
+                            <span class="books-on-page__item selected-page-size" id="item_" @i>@Model.Pager.PageSize</span>
+                        }
+                        else
+                        {
+                            @Ajax.ActionLink(pageSizes[i].ToString(), "BooksList", "Book", new { pageSize = pageSizes[i] },
+                                                          new AjaxOptions
+                                                          {
+                                                              UpdateTargetId = "booksList",
+                                                              OnSuccess = "Sorting"
+                                                          },
+                                                          new { @class = "books-on-page__item", @id = "item_" + i })
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}

@@ -1,0 +1,75 @@
+﻿@model BooksEditor.Models.Entities.Book
+
+<div class="popup-edit-book__close-button js-close-book-button">Закрыть</div>
+@using (Ajax.BeginForm(null, null, null,
+                       new AjaxOptions
+                       {
+                           HttpMethod = "Post",
+                           Url = Url.Action("EditBook", "Book", null)
+                       },
+                       new { enctype = "multipart/form-data", id = "edit-book-form" }))
+{
+    @Html.ValidationSummary()
+    <div class="popup-edit-book__book-id">
+        @Html.HiddenFor(book => book.BookId)
+    </div>
+    <div class="popup-edit-book__book-title">
+        @Html.LabelFor(book => book.Title)
+        @Html.TextBox("Title", Model.Title, new { @class = "popup-edit-book__title", id = "Title", placeholder = "Введите наименование книги" })
+    </div>
+    <div id="book-cover-container">
+        @if (Model.Cover == null)
+        {
+            <img id="popup-img-cover" src="@Url.Content("~/Content/images/default/noCover.png")">
+        }
+        else
+        {
+            <img id="popup-img-cover" src="@Url.Content("~/Content/images/Covers/" + Model.Cover)">
+        }        
+        <div class="edit-cover">
+            <a id="js-edit-cover" title="Выбрать изображение">Выбрать</a>
+            <span>|</span>
+            <a id="js-remove-cover" title="Удалить изображение">Удалить</a>
+        </div>
+        <input id="input-cover" type="file" name="Image" accept="image/*" />
+    </div>
+    <div class="popup-edit-book__book-params">
+        <div class="popup-edit-book__input-container">
+            @Html.LabelFor(book => book.AuthorsList)
+            <div id="AuthorsList" class="edit-book-input" data-placeholder="Добавьте авторов книги">
+                @if (Model.AuthorsList != null)
+                {
+                    foreach (string author in Model.AuthorsList.Split(','))
+                    {
+                        <span>@author.Trim()</span>
+                        <a class="delete-author-button"></a>
+                    }
+                }
+            </div>
+            @{ Html.RenderPartial("AddAuthor", new BooksEditor.Models.Entities.Author()); }
+        </div>
+        <div class="popup-edit-book__input-container">
+            @Html.LabelFor(book => book.PageCount)
+            @Html.TextBox("PageCount", Model.PageCount, new { @class = "edit-book-input", title = "Количество страниц", placeholder = "Введите количество страниц" })
+        </div>
+        <div class="popup-edit-book__input-container">
+            @Html.LabelFor(book => book.PublishHouse)
+            @Html.TextBox("PublishHouse", Model.PublishHouse, new { @class = "edit-book-input", title = "Издательство", placeholder = "Введите название издательства" })
+        </div>
+        <div class="popup-edit-book__input-container">
+            @Html.LabelFor(book => book.PublishYear)
+            @Html.TextBox("PublishYear", Model.PublishYear, new { @class = "edit-book-input", title = "Год публикации", placeholder = "Введите год публикации" })
+        </div>
+    </div>
+    <div class="popup-edit-book__annotation">
+        @Html.LabelFor(book => book.Annotation)
+        @Html.TextArea("Annotation", Model.Annotation, new { @class = "edit-book-input", title = "Аннотация", maxlength = 3000, rows = 10 })
+    </div>
+    <div class="popup-edit-book__save-button">
+        <input type="submit" class="save-button" value="Сохранить">
+    </div>
+}
+
+@System.Web.Optimization.Scripts.Render("~/bundles/jqueryval")
+@System.Web.Optimization.Scripts.Render("~/bundles/jqueryautosize")
+@System.Web.Optimization.Scripts.Render("~/bundles/jqueryplaceholder")

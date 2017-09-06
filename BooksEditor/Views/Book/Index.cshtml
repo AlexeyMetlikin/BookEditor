@@ -1,0 +1,38 @@
+﻿@model BooksEditor.Models.ViewModels.BookViewModel
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="menu">
+    <div class="sorter-panel">
+        <label>Сортировать: </label>
+        @Ajax.ActionLink("по году", null, null, null,
+                      new AjaxOptions
+                      {
+                          UpdateTargetId = "booksList",
+                          OnSuccess = "Sorting",
+                          Url = Url.Action("BooksList", "Book", new { page = 1, order = "Year" })
+                      },
+                      new { @class = ViewBag.order == "Year" ? "is-clicked year-sort-" + ViewBag.orderType : "", @id = "year-sort" })
+        @Ajax.ActionLink("по наименованию", null, null, null,
+                      new AjaxOptions
+                      {
+                          UpdateTargetId = "booksList",
+                          OnSuccess = "Sorting",
+                          Url = Url.Action("BooksList", "Book", new { page = 1, order = "Title" })
+                      },
+                      new { @class = ViewBag.order == "Title" ? "is-clicked title-sort-" + ViewBag.orderType : "", @id = "title-sort" })
+    </div>
+    <div class="create-new-book">
+        @Ajax.ActionLink("Новая книга", "CreateBook", "Book", new AjaxOptions { UpdateTargetId = "bookInfo", OnSuccess = "ShowEditBookPanel" })
+    </div>
+</div>
+@{ Html.RenderPartial("ModalDialog"); }
+<div id="booksList">
+    @Html.Partial("BooksList", Model)
+</div>
+<div id="overlay"></div>
+<div id="bookInfo"></div>
+<a id="scroll-to-top">
+    <span></span>
+</a>

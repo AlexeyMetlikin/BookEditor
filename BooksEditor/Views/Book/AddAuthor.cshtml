@@ -1,0 +1,17 @@
+﻿@model BooksEditor.Models.Entities.Author
+
+<div class="change-book-authors">
+    <div class="change-book-authors__author">
+        @Html.LabelFor(author => author.FirstName)
+        @Html.TextBox("FirstName", Model.FirstName, new { @class = "edit-book-input", id = "FirstName", placeholder = "Введите имя автора" })
+        @Html.ValidationMessageFor(author => author.FirstName)
+    </div>
+    <div class="change-book-authors__author">
+        @Html.LabelFor(author => author.SecondName)
+        @Html.TextBox("SecondName", Model.SecondName, new { @class = "edit-book-input", id = "SecondName", placeholder = "Введите фамилию автора" })
+        @Html.ValidationMessageFor(author => author.SecondName)
+    </div>
+    <div class="change-book-authors__add-author">
+        <a class="add-author-button"></a>
+    </div>
+</div>
